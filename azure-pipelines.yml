@@ -15,7 +15,15 @@ stages:
             displayName: "Build da imagem"
             inputs:
               containerRegistry: "pythonmssqlmr560210"
-              repository:        "pythonsql"
+              repository:        "- task: Docker@2
+  inputs:
+    containerRegistry: 'pythonmssqlmr560210'
+    repository: 'pythonsql'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+    tags: |
+      $(Build.BuildId)
+      latest"
               command:           "build"
               Dockerfile:        "**/Dockerfile"
               tags: |
