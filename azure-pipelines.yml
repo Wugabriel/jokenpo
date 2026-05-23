@@ -10,13 +10,24 @@ stages:
     jobs:
       - job: BuildAndPush
         steps:
+          # Alterado de buildAndPush para apenas build
           - task: Docker@2
-            displayName: "Build e Push da Imagem"
+            displayName: "Build da Imagem"
             inputs:
               containerRegistry: "pythonmssqlmr560210"
               repository:        "pythonsql"
-              command:           "buildAndPush"
+              command:           "build"
               Dockerfile:        "**/Dockerfile"
+              tags: |
+                $(Build.BuildId)
+                latest
+
+          - task: Docker@2
+            displayName: "Push para ACR"
+            inputs:
+              containerRegistry: "pythonmssqlmr560210"
+              repository:        "pythonsql"
+              command:           "push"
               tags: |
                 $(Build.BuildId)
                 latest
@@ -34,11 +45,11 @@ stages:
               scriptType:        "bash"
               scriptLocation:    "inlineScript"
               inlineScript: |
-                # Deleta o container existente, se houver (ignora erros se ele não existir)
                 az container delete \
                   --resource-group cp3devops \
                   --name pythonmssqlmr560210 \
                   --yes
+
                 az container create \
                   --resource-group cp3devops \
                   --name pythonmssqlmr560210 \
