@@ -21,3 +21,42 @@ stages:
               tags: |
                 $(Build.BuildId)
                 latest
+
+
+  - stage: Deploy
+    displayName: "Deploy no ACI"
+    dependsOn: Build
+    jobs:
+      - job: DeployACI
+        steps:
+          - task: AzureCLI@2
+            displayName: "Criar container no ACI"
+            inputs:
+              azureSubscription: "Azure for Students (35d3d240-a7c7-41c8-8cc0-07cef1273b9b)"
+              scriptType:        "bash"
+              scriptLocation:    "inlineScript"
+              inlineScript: |
+                az container delete \
+                  --resource-group cp3devops \
+                  --name pythonmssqlmr560210 \
+                  --yes
+
+                az container create \
+                  --resource-group cp3devops \
+                  --name pythonmssqlmr560210 \
+                  --image pythonmssqlmr50210.azurecr.io/pythonsql:latest \
+                  --cpu 2 \
+                  --memory 2 \
+                  --os-type Linux \
+                  --registry-login-server pythonmssqlmr560210.azurecr.io \
+                  --registry-username pythonmssqlmr560210 \
+                  --registry-password "AC0j1IOsRggfe5zeLmewHb6YDvQGcgvQj0uZvc6oW4Tt4Qi1eioxJQQJ99CEACZoyfiEqg7NAAACAZCRtj6e" \
+                  --dns-name-label pythonmssqlmr560210 \
+                  --restart-policy Always \
+                  --ports 80 \
+                  --environment-variables \
+                    DB_USER="user-dimdimsql" \
+                    DB_PASSWORD='F!ap6988789' \
+                    DB_HOST="sql-server-dimdim-mr560210-brazilsouth.database.windows.net" \
+                    DB_NAME="db-dimdim" \
+                    DB_PORT="1433"
