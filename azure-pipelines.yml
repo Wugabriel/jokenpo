@@ -15,13 +15,11 @@ stages:
             inputs:
               containerRegistry: "pythonmssqlmr560210"
               repository:        "pythonsql"
-
               command:           "buildAndPush"
               Dockerfile:        "**/Dockerfile"
               tags: |
                 $(Build.BuildId)
                 latest
-
 
   - stage: Deploy
     displayName: "Deploy no ACI"
@@ -36,15 +34,15 @@ stages:
               scriptType:        "bash"
               scriptLocation:    "inlineScript"
               inlineScript: |
+                # Deleta o container existente, se houver (ignora erros se ele não existir)
                 az container delete \
                   --resource-group cp3devops \
                   --name pythonmssqlmr560210 \
                   --yes
-
                 az container create \
                   --resource-group cp3devops \
                   --name pythonmssqlmr560210 \
-                  --image pythonmssqlmr50210.azurecr.io/pythonsql:latest \
+                  --image pythonmssqlmr560210.azurecr.io/pythonsql:latest \
                   --cpu 2 \
                   --memory 2 \
                   --os-type Linux \
